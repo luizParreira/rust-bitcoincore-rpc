@@ -27,3 +27,4 @@ serde_json = "1"
 
 [dependencies.jsonrpc]
 git = "https://github.com/luizParreira/rust-jsonrpc.git"
+branch = "allow-custom-hyper-client"

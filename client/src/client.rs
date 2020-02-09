@@ -315,7 +315,10 @@ pub trait RpcApi: Sized {
         Ok(bitcoin::consensus::encode::deserialize(&bytes)?)
     }
 
-    fn get_block_header_verbose(&self, hash: &bitcoin::BlockHash) -> Result<json::GetBlockHeaderResult> {
+    fn get_block_header_verbose(
+        &self,
+        hash: &bitcoin::BlockHash,
+    ) -> Result<json::GetBlockHeaderResult> {
         self.call("getblockheader", &[into_json(hash)?, true.into()])
     }
 
@@ -373,7 +376,10 @@ pub trait RpcApi: Sized {
         self.call("getrawtransaction", handle_defaults(&mut args, &[null()]))
     }
 
-    fn get_block_filter(&self, block_hash: &bitcoin::BlockHash) -> Result<json::GetBlockFilterResult> {
+    fn get_block_filter(
+        &self,
+        block_hash: &bitcoin::BlockHash,
+    ) -> Result<json::GetBlockFilterResult> {
         self.call("getblockfilter", &[into_json(block_hash)?])
     }
 
@@ -679,7 +685,11 @@ pub trait RpcApi: Sized {
     /// Mine `block_num` blocks and pay coinbase to `address`
     ///
     /// Returns hashes of the generated blocks
-    fn generate_to_address(&self, block_num: u64, address: &Address) -> Result<Vec<bitcoin::BlockHash>> {
+    fn generate_to_address(
+        &self,
+        block_num: u64,
+        address: &Address,
+    ) -> Result<Vec<bitcoin::BlockHash>> {
         self.call("generatetoaddress", &[block_num.into(), address.to_string().into()])
     }
 
@@ -780,7 +790,11 @@ pub trait RpcApi: Sized {
     /// 1. `blockhash`: Block hash to wait for.
     /// 2. `timeout`: Time in milliseconds to wait for a response. 0
     /// indicates no timeout.
-    fn wait_for_block(&self, blockhash: &bitcoin::BlockHash, timeout: u64) -> Result<json::BlockRef> {
+    fn wait_for_block(
+        &self,
+        blockhash: &bitcoin::BlockHash,
+        timeout: u64,
+    ) -> Result<json::BlockRef> {
         let args = [into_json(blockhash)?, into_json(timeout)?];
         self.call("waitforblock", &args)
     }
@@ -833,14 +847,13 @@ impl RpcApi for Client {
         args: &[serde_json::Value],
     ) -> Result<T> {
         let req = self.client.build_request(&cmd, &args);
-        if log_enabled!(Debug) {
-            debug!("JSON-RPC request: {}", serde_json::to_string(&req).unwrap());
-        }
+        println!("JSON-RPC request: {}", serde_json::to_string(&req).unwrap());
 
         let resp = self.client.send_request(&req).map_err(Error::from);
-        if log_enabled!(Debug) && resp.is_ok() {
+        println!("Resp: {:?}", resp);
+        if resp.is_ok() {
             let resp = resp.as_ref().unwrap();
-            debug!("JSON-RPC response: {}", serde_json::to_string(resp).unwrap());
+            println!("JSON-RPC response: {}", serde_json::to_string(resp).unwrap());
         }
         Ok(resp?.into_result()?)
     }
